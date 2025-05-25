@@ -24,7 +24,7 @@ pub fn process_create_associated_token_account(
 ) -> ProgramResult {
     let create_mode = CreateMode::try_from(instruction_data[0])?;
 
-    let [funder_info, ata_info, wallet_acc_info, mint_info, system_program, spl_token_program, rem @ ..] =
+    let [funder_info, ata_info, wallet_acc_info, mint_info, _system_program, spl_token_program, _rem @ ..] =
         accounts
     else {
         return Err(ProgramError::NotEnoughAccountKeys);
@@ -44,7 +44,7 @@ pub fn process_create_associated_token_account(
     }
 
     if create_mode == CreateMode::Idempotent
-        // TODO: add support for extensiosn later when token-2022 is complete (becuase deser will error if we use token-2022 program accounts)
+        // TODO: add support for extensions later when token-2022 is complete (becuase deser will error if we use token-2022 program accounts)
         && *spl_token_program.key() == pinocchio_token::ID
         && unsafe { ata_info.owner() } == spl_token_program_id
     {
@@ -65,19 +65,7 @@ pub fn process_create_associated_token_account(
         return Err(ProgramError::IllegalOwner);
     }
 
-    let rent_info = if rem.len() > 0 && rem[0].key() == &pinocchio::sysvars::rent::RENT_ID {
-        Some(&rem[0])
-    } else {
-        None
-    };
-
-    let rent_exempt_lamports = if let Some(rent_acc) = rent_info {
-        let rent = Rent::from_account_info(rent_acc)?;
-        rent.minimum_balance(TokenAccount::LEN)
-    } else {
-        let rent = Rent::get()?;
-        rent.minimum_balance(TokenAccount::LEN)
-    };
+    let rent_exempt_lamports = Rent::get()?.minimum_balance(TokenAccount::LEN);
 
     let bump_seed = [bump_seed];
 
@@ -117,7 +105,7 @@ pub fn process_create_associated_token_account(
 
 #[inline(always)]
 pub fn process_recover_nested(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
-    let [nested_ata_info, nested_mint_info, dest_ata_info, owner_ata_info, owner_mint_info, wallet_acc_info, spl_token_program, rem @ ..] =
+    let [nested_ata_info, nested_mint_info, dest_ata_info, owner_ata_info, owner_mint_info, wallet_acc_info, spl_token_program, _rem @ ..] =
         accounts
     else {
         return Err(ProgramError::NotEnoughAccountKeys);
