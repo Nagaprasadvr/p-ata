@@ -1,0 +1,27 @@
+[package]
+name = "associated-token-account"
+version = "0.0.0"
+edition = { workspace = true }
+readme = "./README.md"
+license = { workspace = true }
+repository = { workspace = true }
+publish = false
+
+[package.metadata.solana]
+program-id = "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+
+[lib]
+crate-type = ["cdylib"]
+
+[features]
+logging = []
+test-sbf = []
+
+[dependencies]
+pinocchio = { workspace = true }
+pinocchio-log = { workspace = true }
+pinocchio-pubkey = { workspace = true }
+pinocchio-system = { workspace = true }
+pinocchio-token = { workspace = true }
+ata-interface = { version = "^0", path = "../interface" }
+
